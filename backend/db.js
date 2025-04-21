@@ -5,8 +5,8 @@ dotenv.config();
 const db = mysql.createConnection({
   host: 'localhost',      // PHP ke XAMPP mein bhi localhost hoga
   user: 'root',           // Default XAMPP MySQL user
-  password: '123456789',           // Agar password set nahi kiya to empty
-  database: 'invoiceflow' // Tumhara PHP mein banaya hua database name
+  password: 'asdf1234',           // Agar password set nahi kiya to empty
+  database: 'invoice-flow' // Tumhara PHP mein banaya hua database name
 });
 
 db.connect((err) => {
