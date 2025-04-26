@@ -18,10 +18,13 @@ function Login() {
     }
 
     try {
-      const response = await axios.post("http://localhost:3006/api/auth/login", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        "http://localhost:3006/api/auth/login",
+        {
+          email,
+          password,
+        }
+      );
 
       if (response.status === 200) {
         setError("");
@@ -42,12 +45,12 @@ function Login() {
     <div className="login-page">
       <div className="login-left">
         <div className="illustration-box">
-          <img
-            src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/%E5%89%8D%E9%9D%A2%204.%20Lovebirds%20Website%20Login%20Design.jpg-1paoL13xn74ze0DJ424BHsfCXvnvkO.jpeg"
-            alt="Decorative"
-          />
+          <img src="https://techxonn.com/images/web/logo.png" alt="Techxon" />
           <h2>Maecenas mattis egestas</h2>
-          <p>Eidum et malesuada fames ac ante ipsum primis in faucibus suspendisse porta</p>
+          <p>
+            Eidum et malesuada fames ac ante ipsum primis in faucibus
+            suspendisse porta
+          </p>
           <div className="dots">
             <span className="dot active"></span>
             <span className="dot"></span>
@@ -84,25 +87,11 @@ function Login() {
                 placeholder="••••••••"
                 onChange={(e) => setPassword(e.target.value)}
               />
-              <div className="text-right">
-               <a href="#" className="forgot-link">Forget password?</a>
-              </div>
             </div>
 
-            <button type="submit" className="btn">Sign In</button>
-
-            <div className="divider">
-              <span>or</span>
-            </div>
-
-            <button className="btn outline">
-              <img src="/placeholder.svg" alt="Google" />
-              Sign in with Google
+            <button type="submit" className="btn">
+              Sign In
             </button>
-
-            <p className="new-account">
-              New Lovebirds? <a href="#">Create Account</a>
-            </p>
           </form>
         </div>
       </div>
