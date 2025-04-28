@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import axios from "axios";
 import "./dashboard.css";
 
 export default function Dashboard() {
@@ -8,33 +9,66 @@ export default function Dashboard() {
     customerEmail: "",
     description: "",
     amount: "",
-    invoiceBy: ""
+    invoiceBy: "",
+    paymentMethod: "stripe",
   });
 
+  // Assume you have the logged-in user's email stored in localStorage
+  const loggedInEmail = localStorage.getItem("userEmail");
+
+  // Fetch invoices for the logged-in user using async/await
   useEffect(() => {
-    fetch("http://localhost:4000/api/invoices")
-      .then((res) => res.json())
-      .then((data) => setInvoices(data));
+    const fetchInvoices = async () => {
+      try {
+        const response = await axios.get("http://localhost:3006/api/invoices");
+        setInvoices(response.data);
+      } catch (error) {
+        console.error("Error fetching invoices:", error);
+      }
+    };
+    
+    fetchInvoices();
   }, []);
 
-  function handleChange(e) {
+  const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-  }
+  };
 
-  function handleSubmit(e) {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    fetch("http://localhost:4000/api/invoices", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(formData),
-    })
-      .then((res) => res.json())
-      .then((newInvoice) => {
-        setInvoices([newInvoice, ...invoices]);
-        setShowModal(false);
-        setFormData({ customerEmail: "", description: "", amount: "", invoiceBy: "" });
+
+    // Validate that amount is a valid number
+    const amount = parseFloat(formData.amount);
+    if (isNaN(amount)) {
+      alert("Please enter a valid amount.");
+      return;
+    }
+
+    // Log the data being sent
+    console.log("Form Data Sent: ", formData);
+
+    try {
+      const response = await axios.post("http://localhost:3006/api/create-invoices", {
+        ...formData,
+        amount, // Ensure amount is a number
       });
-  }
+
+      console.log("New Invoice Created: ", response.data);
+      setInvoices([response.data, ...invoices]);
+      setShowModal(false);
+      setFormData({
+        customerEmail: "",
+        description: "",
+        amount: "",
+        invoiceBy: "",
+        paymentMethod: "stripe",
+      });
+    } catch (error) {
+      console.error("Error creating invoice:", error);
+    }
+  };
+
+  console.log(invoices, "invoice");
 
   return (
     <div className="dashboard-container">
@@ -54,7 +88,12 @@ export default function Dashboard() {
       </div>
 
       <div className="dashboard-content">
-        <button className="create-invoice-btn" onClick={() => setShowModal(true)}>Create Invoice</button>
+        <button
+          className="create-invoice-btn"
+          onClick={() => setShowModal(true)}
+        >
+          Create Invoice
+        </button>
         <h2>Invoices</h2>
 
         <div className="table-container">
@@ -72,12 +111,14 @@ export default function Dashboard() {
             </thead>
             <tbody>
               {invoices.map((invoice) => (
-                <tr key={invoice._id}>
-                  <td>{invoice._id}</td>
+                <tr key={invoice.id}>
+                  <td>{invoice.id}</td>
                   <td>{invoice.customerEmail}</td>
                   <td>{invoice.description}</td>
                   <td>${invoice.amount}</td>
-                  <td className={`status ${invoice.status.toLowerCase()}`}>{invoice.status}</td>
+                  <td className={`status ${invoice.status}`}>
+                    {invoice.status}
+                  </td>
                   <td>{invoice.invoiceBy}</td>
                   <td>{invoice.paymentMethod}</td>
                 </tr>
@@ -91,12 +132,45 @@ export default function Dashboard() {
             <div className="modal">
               <h3>Create New Invoice</h3>
               <form onSubmit={handleSubmit}>
-                <input name="customerEmail" value={formData.customerEmail} onChange={handleChange} placeholder="Customer Email" required />
-                <input name="description" value={formData.description} onChange={handleChange} placeholder="Description" required />
-                <input name="amount" value={formData.amount} onChange={handleChange} placeholder="Amount" required />
-                <input name="invoiceBy" value={formData.invoiceBy} onChange={handleChange} placeholder="Invoice By" required />
+                <input
+                  name="customerEmail"
+                  value={formData.customerEmail}
+                  onChange={handleChange}
+                  placeholder="Customer Email"
+                  required
+                />
+                <input
+                  name="description"
+                  value={formData.description}
+                  onChange={handleChange}
+                  placeholder="Description"
+                  required
+                />
+                <input
+                  name="paymentMethod"
+                  value={formData.paymentMethod}
+                  placeholder="Payment Method"
+                  onChange={handleChange}
+                  required
+                />
+                <input
+                  name="amount"
+                  value={formData.amount}
+                  onChange={handleChange}
+                  placeholder="Amount"
+                  required
+                />
+                <input
+                  name="invoiceBy"
+                  value={formData.invoiceBy}
+                  onChange={handleChange}
+                  placeholder="Invoice By"
+                  required
+                />
                 <button type="submit">Submit</button>
-                <button type="button" onClick={() => setShowModal(false)}>Cancel</button>
+                <button type="button" onClick={() => setShowModal(false)}>
+                  Cancel
+                </button>
               </form>
             </div>
           </div>
